@@ -2,7 +2,7 @@ import express from "express";
 import { createServer as createViteServer } from "vite";
 import Database from "better-sqlite3";
 import path from "path";
-import apiGateway from "./server/index";
+import apiGateway from "./server/index.js";
 
 const db = new Database("suvidha.db");
 

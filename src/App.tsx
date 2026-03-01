@@ -49,7 +49,7 @@ import {
   Bar
 } from 'recharts';
 import Markdown from 'react-markdown';
-import { getVoiceAssistance, textToSpeech } from './services/gemini';
+//import { getVoiceAssistance, textToSpeech } from './services/gemini';
 import { MobileLogin } from './components/MobileLogin';
 import { api } from './utils/api';
 

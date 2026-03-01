@@ -40,8 +40,7 @@ db.exec(`
 
 async function startServer() {
   const app = express();
-  const PORT = 3000;
-
+ const PORT = process.env.PORT || 3000;
   app.use(express.json());
 
   // Mount the new microservices API Gateway
@@ -111,9 +110,11 @@ async function startServer() {
     });
   }
 
-  app.listen(PORT, "0.0.0.0", () => {
-    console.log(`Server running on http://localhost:${PORT}`);
-  });
+  const PORT = process.env.PORT || 3000;
+
+app.listen(PORT, "0.0.0.0", () => {
+  console.log(`Server running on port ${PORT}`);
+});
 }
 
 startServer();

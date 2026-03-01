@@ -1,0 +1,65 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Outfit:wght@300;400;500;600;700;800;900&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Outfit", sans-serif;
+  
+  --color-gov-blue: #001F3F;
+  --color-gov-accent: #3B82F6;
+  --color-gov-bg: #F3F4F6;
+}
+
+@layer base {
+  body {
+    @apply bg-[#F0F2F5] text-slate-900 font-sans antialiased transition-colors duration-500;
+    background-image: radial-gradient(#cbd5e1 0.5px, transparent 0.5px);
+    background-size: 24px 24px;
+  }
+
+  .dark body {
+    @apply bg-slate-950 text-slate-100;
+    background-image: radial-gradient(#1e293b 0.5px, transparent 0.5px);
+  }
+}
+
+@utility kiosk-container {
+  @apply min-h-screen w-full flex flex-col relative bg-[#F0F2F5] overflow-y-auto transition-colors duration-500;
+}
+
+.dark .kiosk-container {
+  @apply bg-slate-950;
+}
+
+@utility glass-panel {
+  @apply bg-white border border-slate-200 shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)] transition-all duration-500;
+}
+
+.dark .glass-panel {
+  @apply bg-slate-900 border-white/5 shadow-[0_20px_50px_rgba(0,0,0,0.3)];
+}
+
+@utility bento-card {
+  @apply bg-white rounded-[2rem] p-8 border border-slate-100 shadow-[0_4px_20px_rgba(0,0,0,0.03)] transition-all duration-500 hover:shadow-[0_20px_40px_rgba(0,0,0,0.06)] hover:-translate-y-1 cursor-pointer;
+}
+
+.dark .bento-card {
+  @apply bg-slate-900 border-white/5 shadow-[0_10px_30px_rgba(0,0,0,0.2)] hover:bg-slate-800/80;
+}
+
+@utility nav-item {
+  @apply flex items-center gap-1 text-sm font-bold text-slate-600 uppercase tracking-tight hover:text-gov-blue transition-colors cursor-pointer;
+}
+
+@utility service-icon-container {
+  @apply w-16 h-16 rounded-2xl flex items-center justify-center mb-6;
+}
+
+.animate-pulse-soft {
+  animation: pulse-soft 2s infinite;
+}
+
+@keyframes pulse-soft {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}

@@ -1,0 +1,8 @@
+{
+  "name": "Remix: Remix: SUVIDHA OneTouch",
+  "description": "A Unified Multilingual Civic Services Interface for Electricity, Gas, Municipal, and Health services with real-time tracking.",
+  "requestFramePermissions": [
+    "camera",
+    "microphone"
+  ]
+}

@@ -7,7 +7,7 @@
     "dev": "tsx server.ts",
     "dev:watch": "tsx watch server.ts",
     "build": "vite build",
-    "start": "node index.ts",
+    "start": "node server.ts",
     "docker:build": "docker build -t suvidha-backend .",
     "docker:up": "docker compose up -d",
     "docker:down": "docker compose down",

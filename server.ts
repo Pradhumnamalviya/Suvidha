@@ -1,8 +1,6 @@
 import express from "express";
-import { createServer as createViteServer } from "vite";
+import cors from "cors";
 import Database from "better-sqlite3";
-import path from "path";
-import apiGateway from "./server/index.js";
 
 const db = new Database("suvidha.db");
 
@@ -15,6 +13,7 @@ db.exec(`
     status TEXT,
     timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
   );
+
   CREATE TABLE IF NOT EXISTS complaints (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     service TEXT,
@@ -22,6 +21,7 @@ db.exec(`
     status TEXT DEFAULT 'Pending',
     timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
   );
+
   CREATE TABLE IF NOT EXISTS applications (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     service TEXT,
@@ -31,88 +31,70 @@ db.exec(`
     status TEXT DEFAULT 'Pending',
     timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
   );
-  CREATE TABLE IF NOT EXISTS analytics (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    event TEXT,
-    timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
-  );
 `);
 
-async function startServer() {
-  const app = express();
- const PORT = process.env.PORT || 3000;
-  app.use(express.json());
+const app = express();
+const PORT = process.env.PORT || 3000;
 
-  // Mount the new microservices API Gateway
-  app.use("/api/v1", apiGateway);
+app.use(cors());
+app.use(express.json());
 
-  // Legacy API Routes (SQLite)
-  app.get("/api/stats", (req, res) => {
-    const totalTransactions = db.prepare("SELECT COUNT(*) as count FROM transactions").get() as { count: number };
-    const totalComplaints = db.prepare("SELECT COUNT(*) as count FROM complaints").get() as { count: number };
-    const totalApplications = db.prepare("SELECT COUNT(*) as count FROM applications").get() as { count: number };
-    const recentTransactions = db.prepare("SELECT * FROM transactions ORDER BY timestamp DESC LIMIT 5").all();
-    
-    res.json({
-      transactions: totalTransactions.count,
-      complaints: totalComplaints.count,
-      applications: totalApplications.count,
-      recent: recentTransactions
-    });
+// ================= API ROUTES =================
+
+// Stats
+app.get("/api/stats", (req, res) => {
+  const totalTransactions = db.prepare("SELECT COUNT(*) as count FROM transactions").get() as any;
+  const totalComplaints = db.prepare("SELECT COUNT(*) as count FROM complaints").get() as any;
+  const totalApplications = db.prepare("SELECT COUNT(*) as count FROM applications").get() as any;
+
+  res.json({
+    transactions: totalTransactions.count,
+    complaints: totalComplaints.count,
+    applications: totalApplications.count
   });
+});
 
-  app.post("/api/pay", (req, res) => {
-    const { service, amount } = req.body;
-    const stmt = db.prepare("INSERT INTO transactions (service, amount, status) VALUES (?, ?, ?)");
-    stmt.run(service, amount, "Success");
-    res.json({ success: true, transactionId: Math.random().toString(36).substr(2, 9).toUpperCase() });
+// Payment
+app.post("/api/pay", (req, res) => {
+  const { service, amount } = req.body;
+
+  db.prepare("INSERT INTO transactions (service, amount, status) VALUES (?, ?, ?)")
+    .run(service, amount, "Success");
+
+  res.json({
+    success: true,
+    transactionId: Math.random().toString(36).substring(2, 9).toUpperCase()
   });
+});
 
-  app.post("/api/complaint", (req, res) => {
-    const { service, description } = req.body;
-    const stmt = db.prepare("INSERT INTO complaints (service, description) VALUES (?, ?)");
-    stmt.run(service, description);
-    res.json({ success: true, complaintId: "CMP-" + Math.random().toString(36).substr(2, 6).toUpperCase() });
+// Complaint
+app.post("/api/complaint", (req, res) => {
+  const { service, description } = req.body;
+
+  db.prepare("INSERT INTO complaints (service, description) VALUES (?, ?)")
+    .run(service, description);
+
+  res.json({
+    success: true,
+    complaintId: "CMP-" + Math.random().toString(36).substring(2, 6).toUpperCase()
   });
+});
 
-  app.post("/api/apply", (req, res) => {
-    const { service, name, mobile, address } = req.body;
-    const stmt = db.prepare("INSERT INTO applications (service, name, mobile, address) VALUES (?, ?, ?, ?)");
-    stmt.run(service, name, mobile, address);
-    res.json({ success: true, applicationId: "APP-" + Math.random().toString(36).substr(2, 6).toUpperCase() });
+// Application
+app.post("/api/apply", (req, res) => {
+  const { service, name, mobile, address } = req.body;
+
+  db.prepare("INSERT INTO applications (service, name, mobile, address) VALUES (?, ?, ?, ?)")
+    .run(service, name, mobile, address);
+
+  res.json({
+    success: true,
+    applicationId: "APP-" + Math.random().toString(36).substring(2, 6).toUpperCase()
   });
+});
 
-  app.get("/api/analytics/chart", (req, res) => {
-    // Mock data for charts
-    const data = [
-      { name: 'Mon', transactions: 400, complaints: 240 },
-      { name: 'Tue', transactions: 300, complaints: 139 },
-      { name: 'Wed', transactions: 200, complaints: 980 },
-      { name: 'Thu', transactions: 278, complaints: 390 },
-      { name: 'Fri', transactions: 189, complaints: 480 },
-      { name: 'Sat', transactions: 239, complaints: 380 },
-      { name: 'Sun', transactions: 349, complaints: 430 },
-    ];
-    res.json(data);
-  });
-
-  // Vite middleware for development
-  if (process.env.NODE_ENV !== "production") {
-    const vite = await createViteServer({
-      server: { middlewareMode: true },
-      appType: "spa",
-    });
-    app.use(vite.middlewares);
-  } else {
-    app.use(express.static("dist"));
-    app.get("*", (req, res) => {
-      res.sendFile(path.resolve("dist/index.html"));
-    });
-  }
+// =================================================
 
 app.listen(PORT, "0.0.0.0", () => {
   console.log(`Server running on port ${PORT}`);
 });
-}
-
-startServer();
